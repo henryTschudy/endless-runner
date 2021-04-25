@@ -1,0 +1,14 @@
+floor.png: Something that we apply hues to
+runner.png: We'll probably have to do a texture atlas, kind of like how fighting games animate their characters
+riverfront.png: Part of parallax, scrolls at the same speed the ground does
+river1.png : part of the river meeting the bank
+river2.png : part of the river meeting the opposite bank
+riverback.png : the opposite riverbank
+background.png : Details behind the opposite riverbank
+//spookyghosts.png : something for the rivers. Probably 5 textures, one totally transparent, that follows a sine along
+    the river parallax.
+hurdle.png: Same story as above. We want to be able to transition between each of the hurdles - maybe add some animation
+    frames where they turn into the other hurdle?
+longJump.png: Probably want a texture that can be easily extended to match the scaling difficulty of the game.
+
+Im not sure if texture atlases are stored as pngs. They probably are?
