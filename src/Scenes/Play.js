@@ -85,9 +85,11 @@ class Play extends Phaser.Scene {
         });
         
         this.bushwhack = this.physics.add.collider(this.runner, this.hurdleGroup);
+        this.bushwhack.overlapOnly = true;
         this.physics.add.collider(this.hurdleGroup, this.ground);
         this.gameOver = false;
         this.distTimer = 0;
+        this.timer = 0;
 
         keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     }
@@ -174,27 +176,29 @@ class Play extends Phaser.Scene {
     update(time, delta) {
         // short-hop vs long-jump is main decision
         // Speed determines if long-jumps are passable
-        this.timer -= delta;
         if(this.gameOver){ // Dead :(
             // oh shit he dead
             this.time.delayedCall(2000, () => { this.scene.start('gameOverScene'); });
         }
         else{ // Not dead yet, poggers
-            if(this.scrollSpeed < this.scrollSpeedCap / 2){
-                this.timer += delta * 2;
-                if(this.timer > 10){
-                    this.hadesVibeCheck(); // You're too slow!
-                }
-            }
+            // Originally a source that allowed the incrementation of a timer to cause a game-over.
+            // Since the lose-con is being reworked, i commented this out.
+            // if(this.scrollSpeed < this.scrollSpeedCap / 2){
+            //     this.timer += delta * 2;
+            //     console.log(this.timer);
+            //     if(this.timer > 10){
+            //         this.hadesVibeCheck(); // You're too slow!
+            //     }
+            // }
             this.floor.tilePositionX += this.scrollSpeed / 2;
             this.groundScroll.tilePositionX += this.scrollSpeed;
             this.physics.world.overlap(this.hurdleGroup, this.runner, this.hurdleCollision, null, this);
-            if(this.runner.x < 100){
-                this.runner.x = 200;
-                this.ifuckinghatephaser3rightaboutnow(this.runner); // I dont know why i cant just
-                                                                    // this.runner.setVelocityX(0)
-                                                                    // but this fucking works because okay.
-            }
+            // if(this.runner.x < 100){
+            //     this.runner.x = 200;
+            //     this.ifuckinghatephaser3rightaboutnow(this.runner); // I dont know why i cant just
+            //                                                         // this.runner.setVelocityX(0)
+            //                                                         // but this fucking works because okay.
+            // }
             if(this.runner.y > game.config.height){
                 this.runner.y = game.config.height - tileSize * 2;
             }
