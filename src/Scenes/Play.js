@@ -95,7 +95,7 @@ class Play extends Phaser.Scene {
     // Hurdle obstacle
     addHurdle() {
         let hurdle = new Hurdle(this, -this.scrollSpeed * 30, 'hurdle');
-        hurdle.setGravityY(0);
+        //hurdle.setGravityY(0);
         this.hurdleGroup.add(hurdle);
     }
 
@@ -188,7 +188,7 @@ class Play extends Phaser.Scene {
             }
             this.floor.tilePositionX += this.scrollSpeed / 2;
             this.groundScroll.tilePositionX += this.scrollSpeed;
-            this.physics.world.collide(this.hurdleGroup, this.runner, this.hurdleCollision, null, this);
+            this.physics.world.overlap(this.hurdleGroup, this.runner, this.hurdleCollision, null, this);
             if(this.runner.x < 100){
                 this.runner.x = 200;
                 this.ifuckinghatephaser3rightaboutnow(this.runner); // I dont know why i cant just
