@@ -3,7 +3,7 @@ const tileSize = 35;
 let config = {
     type: Phaser.WEBGL,
     width: 840,
-    height: 525,
+    height: 524,
     physics: {
         default: 'arcade',
         arcade: {

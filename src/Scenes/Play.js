@@ -4,9 +4,18 @@ class Play extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('runner', './assets/runner.png');
-        this.load.image('floor', './assets/floor.png');
-        this.load.image('hurdle', './assets/hurdle.png');
+        this.load.atlas('runner', './assets/obstacleseComposite.png', './assets/obstacleseComposite.json');
+        this.load.image('floor', './assets/Foreground.png');
+        this.load.image('hurdle', './assets/Rubble1.png');
+        this.load.image('background', './assets/BackgroundGradient.png');
+        this.load.image('foregroundStones', './assets/ForegroundStones.png');
+        this.load.image('backgroundPillars', './assets/BackgroundPillars.png');
+        this.load.image('spikes', './assets/Spikes.png');
+        this.load.image('shore', './assets/Shore.png');
+        this.load.image('shoreReflection', './assets/ShoreReflection.png');
+        this.load.image('pillarReflection', './assets/PillarReflection.png');
+        this.load.image('river', './assets/River.png');
+        
     }
 
     create() {
@@ -58,19 +67,39 @@ class Play extends Phaser.Scene {
         */
 
         // Setting up runner
-        this.runner = this.physics.add.sprite(200, game.config.height - tileSize * 2, 'runner').setOrigin(0.5);
+        this.runner = this.physics.add.sprite(200, game.config.height - tileSize * 4, 'runner').setOrigin(0.5);
+        this.anims.create({
+            key: 'run',
+            frames:this.anims.generateFrameNames('runner', { prefix: 'run', end: 7, zeroPad: 0}),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'jump',
+            frames:this.anims.generateFrameNames('runner', { prefix: 'jump'})
+        });
+
+        // Setting up background elements
+        this.background = this.add.tileSprite(0,0,game.width, game.height,'background').setOrigin(0,0).setDepth(-7);
+        this.river = this.add.tileSprite(0,0,game.width, game.height,'river').setOrigin(0,0).setDepth(-3);
+        this.foregroundStones = this.add.tileSprite(0,0,game.width, game.height,'foregroundStones').setOrigin(0,0).setDepth(-1);
+        this.backgroundPillars = this.add.tileSprite(0,0,game.width, game.height,'backgroundPillars').setOrigin(0,0).setDepth(-5);
+        this.spikes = this.add.tileSprite(0,0,game.width, game.height,'spikes').setOrigin(0,0).setDepth(-6);
+        this.shore = this.add.tileSprite(0,0,game.width, game.height,'shore').setOrigin(0,0).setDepth(-2);
+        this.shoreReflection = this.add.tileSprite(0,0,game.width, game.height,'shoreReflection').setOrigin(0,0).setDepth(-2);
+        this.pillarReflection = this.add.tileSprite(0,0,game.width, game.height,'pillarReflection').setOrigin(0,0).setDepth(-2);
         
         // Setting up tiles - using heavy reference from Endless Strollin to get things preliminarily set up
-        this.floor = this.add.tileSprite(0, 0, game.config.width, game.config.height, 'floor').setOrigin(0);
+        this.floor = this.add.tileSprite(0, 0, game.config.width, game.config.height, 'floor').setOrigin(0).setDepth(-1);
 
         this.ground = this.add.group();
         for(let i = 0; i < game.config.width; i += tileSize) {
-            let groundTile = this.physics.add.sprite(i, game.config.height - tileSize, 'runner', 'block').setOrigin(0);
+            let groundTile = this.physics.add.sprite(i, game.config.height - tileSize, 'runner', 'block').setOrigin(0).setDepth(-8);
             groundTile.body.immovable = true;
             groundTile.body.allowGravity = false;
             this.ground.add(groundTile);
         }
-        this.groundScroll = this.add.tileSprite(0, game.config.height-tileSize, game.config.width, tileSize, 'groundScroll').setOrigin(0);
+        this.groundScroll = this.add.tileSprite(0, game.config.height-tileSize, game.config.width, tileSize, 'groundScroll').setOrigin(0).setDepth(-8);
 
         // Runner collides with ground
         this.physics.add.collider(this.runner, this.ground);
@@ -101,7 +130,7 @@ class Play extends Phaser.Scene {
         this.hurdleGroup.add(hurdle);
     }
 
-    ifuckinghatephaser3rightaboutnow(runner){
+    setRunnerVelocity(runner){
         runner.setVelocityX(0);
     }
 
@@ -195,7 +224,7 @@ class Play extends Phaser.Scene {
             this.physics.world.overlap(this.hurdleGroup, this.runner, this.hurdleCollision, null, this);
             // if(this.runner.x < 100){
             //     this.runner.x = 200;
-            //     this.ifuckinghatephaser3rightaboutnow(this.runner); // I dont know why i cant just
+            //     this.setRunnerVelocity(this.runner); // I dont know why i cant just
             //                                                         // this.runner.setVelocityX(0)
             //                                                         // but this fucking works because okay.
             // }
@@ -210,10 +239,10 @@ class Play extends Phaser.Scene {
 
             // reset jumps
             if(this.runner.body.touching.down) {
-                //this.runner.anims.play('walk', true);
+                this.runner.anims.play('run', true);
                 this.jumping = false;
             } else {
-                //this.runner.anims.play('jump');
+                this.runner.anims.play('jump', true);
             }
 
             if(Phaser.Input.Keyboard.DownDuration(keySPACE, 150) && !this.jumping) {
@@ -222,7 +251,16 @@ class Play extends Phaser.Scene {
                 if(Phaser.Input.Keyboard.DownDuration(keySPACE, 450)) {
                     this.runner.body.velocity.y = this.jumpSpeed;
                 } 
-            } 
+                this.jumping = false;
+            }
+            
+            // Parallax
+            this.foregroundStones.tilePositionX += this.scrollSpeed;
+            this.backgroundPillars.tilePositionX += this.scrollSpeed / 4;
+            this.spikes.tilePositionX += this.scrollSpeed / 6;
+            this.shore.tilePositionX += this.scrollSpeed / 2;
+            this.shoreReflection.tilePositionX += this.scrollSpeed / 2;
+            this.pillarReflection.tilePositionX += this.scrollSpeed / 4;
             
             // How to make short hop vs long jump?
 
