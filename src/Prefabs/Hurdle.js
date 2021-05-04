@@ -12,13 +12,12 @@ class Hurdle extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
-        if(this.newHurdle && this.x < 2 * game.config.width / 3 && !this.newHurdle) {
+        if(this.newHurdle && this.x < 2 * game.config.width / 3) {
             this.newHurdle = false;
             // (recursively) call parent scene method from this context
-            this.scene.time.delayedCall(500 + Math.random() * 1000, () => {
-                this.scene.addHurdle(this.parent, this.velocity);
+            this.scene.time.delayedCall(1000 + Math.random() * 1000, () => {
+                this.scene.addHurdle();
             })
-            
         }
 
         this.setVelocityX(-this.scene.scrollSpeed * 30);

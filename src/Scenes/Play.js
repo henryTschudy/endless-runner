@@ -26,7 +26,7 @@ class Play extends Phaser.Scene {
         // this.obstacleSpeedCap = -1000;
         this.distance = 0;
         this.reverse = false;
-        this.jumpSpeed = -1200;
+        this.jumpSpeed = -700;
         this.scrollSpeed = 8;
         this.scrollSpeedCap = this.scrollSpeed * 3;
 
@@ -154,7 +154,7 @@ class Play extends Phaser.Scene {
         this.bushwhack.active = false;
         this.time.delayedCall(2000, () => {this.bushwhack.active = true;});
 
-        console.log('poof!')
+        //console.log('poof!')
         // Concurrently play runner tripping animation
         this.scrollSpeed /= 3;
         this.scrollSpeed *= 2;
@@ -249,7 +249,6 @@ class Play extends Phaser.Scene {
                 if(Phaser.Input.Keyboard.DownDuration(keySPACE, 450)) {
                     this.runner.body.velocity.y = this.jumpSpeed;
                 } 
-                this.jumping = false;
             }
             
             // Parallax
@@ -266,7 +265,7 @@ class Play extends Phaser.Scene {
             if(this.distTimer >= 1000){
                 this.distTimer -= 1000;
                 this.distance += Math.round(this.scrollSpeed);
-                console.log(this.distance);
+                //console.log(this.distance);
             }
 
             this.hurdleSpawn -= delta;
