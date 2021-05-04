@@ -22,12 +22,12 @@ class Play extends Phaser.Scene {
         //this.add.text(game.config.width/2, 30, 'Play', { font: '28px Futura', fill: '#FFF' }).setOrigin(0.5);
 
         // Parameters
-        this.obstacleSpeed = -450;
-        this.obstacleSpeedCap = -1000;
+        // this.obstacleSpeed = -450;
+        // this.obstacleSpeedCap = -1000;
         this.distance = 0;
         this.reverse = false;
-        this.jumpSpeed = -600;
-        this.scrollSpeed = 4;
+        this.jumpSpeed = -1200;
+        this.scrollSpeed = 8;
         this.scrollSpeedCap = this.scrollSpeed * 3;
 
         /* River variable settings:
@@ -127,9 +127,11 @@ class Play extends Phaser.Scene {
     addHurdle() {
         let hurdle = new Hurdle(this, -this.scrollSpeed * 30, 'hurdle');
         //hurdle.setGravityY(0);
+        hurdle.scale = 0.75;
         this.hurdleGroup.add(hurdle);
     }
 
+    // Note : The runner doesn't move, the world around them does. What is this function for?
     setRunnerVelocity(runner){
         runner.setVelocityX(0);
     }
@@ -146,10 +148,6 @@ class Play extends Phaser.Scene {
     hurdleCollision(hurdle) {
         hurdle.destroyed = true;
         hurdle.destroy();
-
-        if(Math.random() > 0.9){
-            this.addHurdle();
-        }
 
         // An attempt at creating I-frames so that the player is less likely to die
         // simply because theyve been slowed down too much to jump over other hurdles

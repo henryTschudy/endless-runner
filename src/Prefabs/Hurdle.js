@@ -1,8 +1,8 @@
 class Hurdle extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, velocity, sprite) {
         // call Phaser Physics Sprite constructor
-        super(scene, game.config.width * Phaser.Math.Between(1.1, 1.4),
-                game.config.height - tileSize * 2, sprite); 
+        super(scene, game.config.width,
+                game.config.height * 2/3, sprite); 
         // set up physics sprite
         scene.add.existing(this);               // add to existing scene, displayList, updateList
         scene.physics.add.existing(this);       // add to physics system
@@ -12,16 +12,19 @@ class Hurdle extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
-        if(this.newHurdle && this.x < 2 * game.config.width / 3) {
+        if(this.newHurdle && this.x < 2 * game.config.width / 3 && !this.newHurdle) {
             this.newHurdle = false;
             // (recursively) call parent scene method from this context
-            this.scene.addHurdle(this.parent, this.velocity);
+            this.scene.time.delayedCall(500 + Math.random() * 1000, () => {
+                this.scene.addHurdle(this.parent, this.velocity);
+            })
+            
         }
 
         this.setVelocityX(-this.scene.scrollSpeed * 30);
 
         // destroy hurdle if it reaches the left edge of the screen
-        if(this.x < 0) {
+        if(this.x < -150) {
             this.destroy();
         }
     }
