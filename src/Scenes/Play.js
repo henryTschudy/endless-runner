@@ -26,7 +26,7 @@ class Play extends Phaser.Scene {
         // this.obstacleSpeedCap = -1000;
         this.distance = 0;
         this.reverse = false;
-        this.jumpSpeed = -700;
+        this.jumpSpeed = -750;
         this.scrollSpeed = 8;
         this.scrollSpeedCap = this.scrollSpeed * 3;
 
@@ -110,7 +110,7 @@ class Play extends Phaser.Scene {
         })
 
         this.time.delayedCall(1500, () => { 
-            this.addHurdle(); 
+            this.addHurdle(this, -this.scrollSpeed); 
         });
         
         this.bushwhack = this.physics.add.collider(this.runner, this.hurdleGroup);
@@ -125,10 +125,12 @@ class Play extends Phaser.Scene {
 
     // Hurdle obstacle
     addHurdle() {
-        let hurdle = new Hurdle(this, -this.scrollSpeed * 30, 'hurdle');
-        //hurdle.setGravityY(0);
-        hurdle.scale = 0.75;
-        this.hurdleGroup.add(hurdle);
+        this.time.delayedCall(1000 + Math.random() * 1000, () => {
+            let hurdle = new Hurdle(this, this.scrollSpeed * 30, 'hurdle');
+            //hurdle.setGravityY(0);
+            hurdle.scale = 0.75;
+            this.hurdleGroup.add(hurdle);
+        });
     }
 
     // Note : The runner doesn't move, the world around them does. What is this function for?
@@ -151,8 +153,8 @@ class Play extends Phaser.Scene {
 
         // An attempt at creating I-frames so that the player is less likely to die
         // simply because theyve been slowed down too much to jump over other hurdles
-        this.bushwhack.active = false;
-        this.time.delayedCall(2000, () => {this.bushwhack.active = true;});
+        // this.bushwhack.active = false;
+        // this.time.delayedCall(2000, () => {this.bushwhack.active = true;});
 
         //console.log('poof!')
         // Concurrently play runner tripping animation
@@ -217,15 +219,18 @@ class Play extends Phaser.Scene {
             //         this.hadesVibeCheck(); // You're too slow!
             //     }
             // }
+
             this.floor.tilePositionX += this.scrollSpeed / 2;
             this.groundScroll.tilePositionX += this.scrollSpeed;
             this.physics.world.overlap(this.hurdleGroup, this.runner, this.hurdleCollision, null, this);
+
             // if(this.runner.x < 100){
             //     this.runner.x = 200;
             //     this.setRunnerVelocity(this.runner); // I dont know why i cant just
             //                                                         // this.runner.setVelocityX(0)
             //                                                         // but this fucking works because okay.
             // }
+
             if(this.runner.y > game.config.height){
                 this.runner.y = game.config.height - tileSize * 2;
             }
@@ -268,11 +273,11 @@ class Play extends Phaser.Scene {
                 //console.log(this.distance);
             }
 
-            this.hurdleSpawn -= delta;
-            if(this.hurdleSpawn <= 0){
-                this.addHurdle();
-                this.hurdleSpawn += Math.random() * 600 + 400; // between 0.5 and 0.2s per spawn
-            }
+            // this.hurdleSpawn -= delta;
+            // if(this.hurdleSpawn <= 0){
+            //     this.addHurdle();
+            //     this.hurdleSpawn += Math.random() * 600 + 400; // between 0.5 and 0.2s per spawn
+            // }
             
             // Make the game slightly faster when switching between areas
             if(this.distance % 25 == 0){ // 1000 m when ship
