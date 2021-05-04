@@ -4,7 +4,10 @@ class Play extends Phaser.Scene {
     }
 
     preload() {
+        this.load.bitmapFont('font', './assets/font.png', './assets/font.xml');
+
         this.load.atlas('runner', './assets/obstacleseComposite.png', './assets/obstacleseComposite.json');
+        
         this.load.image('floor', './assets/Foreground.png');
         this.load.image('hurdle', './assets/Rubble1.png');
         this.load.image('background', './assets/BackgroundGradient.png');
@@ -19,14 +22,13 @@ class Play extends Phaser.Scene {
     }
 
     create() {
-        //this.add.text(game.config.width/2, 30, 'Play', { font: '28px Futura', fill: '#FFF' }).setOrigin(0.5);
-
+        
         // Parameters
         // this.obstacleSpeed = -450;
         // this.obstacleSpeedCap = -1000;
         this.distance = 0;
         this.reverse = false;
-        this.jumpSpeed = -750;
+        this.jumpSpeed = -650;
         this.scrollSpeed = 8;
         this.scrollSpeedCap = this.scrollSpeed * 3;
 
@@ -126,10 +128,11 @@ class Play extends Phaser.Scene {
     // Hurdle obstacle
     addHurdle() {
         this.time.delayedCall(1000 + Math.random() * 1000, () => {
-            let hurdle = new Hurdle(this, this.scrollSpeed * 30, 'hurdle');
+            let hurdle = new Hurdle(this, 0, 'hurdle');
             //hurdle.setGravityY(0);
             hurdle.scale = 0.75;
             this.hurdleGroup.add(hurdle);
+            this.children.bringToTop(this.runner)
         });
     }
 
@@ -149,7 +152,9 @@ class Play extends Phaser.Scene {
     // Triggers when player fails to jump over hurdle
     hurdleCollision(hurdle) {
         hurdle.destroyed = true;
-        hurdle.destroy();
+        // hurdle.destroy(); // Hurdles persist with collision disabled
+        // get oofed m8
+        this.cameras.main.shake(100, 0.01);
 
         // An attempt at creating I-frames so that the player is less likely to die
         // simply because theyve been slowed down too much to jump over other hurdles
@@ -202,6 +207,29 @@ class Play extends Phaser.Scene {
         }
     }
 
+    distext(){
+        // let distext = this.make.bitmapText({
+        //     x: 5 * game.config.width / 8,
+        //     y: game.config.height / 2,
+        //     text: `${this.distance}`,
+        //     font: 'font',
+        //     size: false,
+        //     align: 0,
+        //     // origin: {x: 0.5, y: 0.5},
+        //     add: true
+        // }).setOrigin(0, 0.5);
+        // distext.setBlendMode('ADD').setTint(0xfff);
+        // this.tweens.add({
+        //     targets: [distext],
+        //     duration: 500,
+        //     x: { from: 5 * game.config.width / 8, to: 3 * game.config.width / 8 },
+        //     alpha: { from: 1, to: 0 },
+        //     onComplete: function() {
+        //         distext.destroy();
+        //     }
+        // });
+    }
+
     update(time, delta) {
         // short-hop vs long-jump is main decision
         // Speed determines if long-jumps are passable
@@ -231,12 +259,13 @@ class Play extends Phaser.Scene {
             //                                                         // but this fucking works because okay.
             // }
 
+            // Only I say if you can fall through the earth, Boy
             if(this.runner.y > game.config.height){
                 this.runner.y = game.config.height - tileSize * 2;
             }
 
             if(this.scrollSpeed < this.scrollSpeedCap){
-                this.scrollSpeed += .001 * (this.scrollSpeedCap - this.scrollSpeed) - 0.0001;
+                this.scrollSpeed += .005 * (this.scrollSpeedCap - this.scrollSpeed) - 0.0001;
                 if(this.scrollSpeed > this.scrollSpeedCap) {this.scrollSpeed = this.scrollSpeedCap}
             }
 
@@ -270,6 +299,9 @@ class Play extends Phaser.Scene {
             if(this.distTimer >= 1000){
                 this.distTimer -= 1000;
                 this.distance += Math.round(this.scrollSpeed);
+
+                // Absolutely not ripped off of Nathan's code, nope. It totally is.
+                this.distext()
                 //console.log(this.distance);
             }
 

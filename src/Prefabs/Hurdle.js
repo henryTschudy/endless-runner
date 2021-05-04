@@ -18,7 +18,7 @@ class Hurdle extends Phaser.Physics.Arcade.Sprite {
             this.scene.addHurdle();
         }
 
-        this.setVelocityX(-this.scene.scrollSpeed * 30);
+        this.setVelocityX(-this.scene.scrollSpeed * 45);
 
         // destroy hurdle if it reaches the left edge of the screen
         if(this.x < -150) {
