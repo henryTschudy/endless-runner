@@ -7,7 +7,6 @@ class Play extends Phaser.Scene {
         //this.load.bitmapFont('font', './assets/font.png', './assets/font.xml');
 
         this.load.atlas('runner', './assets/obstacleseComposite.png', './assets/obstacleseComposite.json');
-        
         this.load.image('floor', './assets/Foreground.png');
         this.load.image('hurdle', './assets/Rubble1.png');
         this.load.image('background', './assets/BackgroundGradient.png');
@@ -18,7 +17,10 @@ class Play extends Phaser.Scene {
         this.load.image('shoreReflection', './assets/ShoreReflection.png');
         this.load.image('pillarReflection', './assets/PillarReflection.png');
         this.load.image('river', './assets/River.png');
-        this.load.spritesheet('hades', './assets/hades.png', {frameWidth: 440, frameHeight: 416});
+        this.load.spritesheet('hades', './assets/hades.png', {frameWidth: 440, frameHeight: 416, startFrame: 0, endFrame: 3});
+        this.load.audio('sfx_jump', './assets/jump.wav')
+        this.load.audio('sfx_step', './assets/step.wav')
+        this.load.audio('sfx_trip', './assets/trip.wav')
         
     }
 
@@ -86,15 +88,23 @@ class Play extends Phaser.Scene {
             key: 'jump',
             frames:this.anims.generateFrameNames('runner', { prefix: 'jump'})
         });
+        this.anims.create({
+            key: 'trip',
+            frames:this.anims.generateFrameNames('runner', { prefix: 'trip'})
+        })
         // Setting up Hades
         this.hades = this.physics.add.sprite(50, game.config.height - tileSize * 10, 'hades').setOrigin(0.5);
         this.hades.scale = 0.6;
         this.anims.create({
             key: 'hades',
-            frames:this.anims.generateFrameNames('hades', { prefix: 'hades', end: 3, zeroPad: 0}),
+            frames:this.anims.generateFrameNumbers('hades', {start: 0, end: 3, first: 0}),
             frameRate: 10,
             repeat: -1
         });
+
+        // Setting up audio objects that rely on overlap
+        this.trip_sfx = this.sound.add('sfx_trip');
+        this.step_sfx = this.sound.add('sfx_step');
 
 
 
@@ -174,6 +184,9 @@ class Play extends Phaser.Scene {
         // hurdle.destroy(); // Hurdles persist with collision disabled
         // get oofed m8
         this.cameras.main.shake(100, 0.01);
+        if (this.trip_sfx.isPlaying == false){
+            this.trip_sfx.play();
+        }
 
         // An attempt at creating I-frames so that the player is less likely to die
         // simply because theyve been slowed down too much to jump over other hurdles
@@ -181,7 +194,6 @@ class Play extends Phaser.Scene {
         // this.time.delayedCall(2000, () => {this.bushwhack.active = true;});
 
         //console.log('poof!')
-        // Concurrently play runner tripping animation
         this.scrollSpeed /= 3;
         this.scrollSpeed *= 2;
         if(this.scrollSpeed < this.scrollSpeedCap / 3){
@@ -276,7 +288,7 @@ class Play extends Phaser.Scene {
             //     this.runner.x = 200;
             //     this.setRunnerVelocity(this.runner); // I dont know why i cant just
             //                                                         // this.runner.setVelocityX(0)
-            //                                                         // but this fucking works because okay.
+            //                                                         // but this works because okay.
             // }
 
             // Only I say if you can fall through the earth, Boy
@@ -288,10 +300,17 @@ class Play extends Phaser.Scene {
                 this.scrollSpeed += .005 * (this.scrollSpeedCap - this.scrollSpeed) - 0.0001;
                 if(this.scrollSpeed > this.scrollSpeedCap) {this.scrollSpeed = this.scrollSpeedCap}
             }
+            this.hades.anims.play('hades', true)
 
             // reset jumps
-            if(this.runner.body.touching.down) {
+            if(this.physics.world.overlap(this.runner, this.hurdleGroup)){
+                this.runner.anims.play('trip', true)
+            }
+            else if(this.runner.body.touching.down) {
                 this.runner.anims.play('run', true);
+                if (!this.step_sfx.isPlaying){
+                    this.step_sfx.play()
+                }
                 this.jumping = false;
             } else {
                 this.runner.anims.play('jump', true);
@@ -300,6 +319,7 @@ class Play extends Phaser.Scene {
             if(Phaser.Input.Keyboard.DownDuration(keySPACE, 150) && !this.jumping) {
                 this.runner.body.velocity.y = this.jumpSpeed;
                 this.jumping = true;
+                this.sound.play('sfx_jump');
                 if(Phaser.Input.Keyboard.DownDuration(keySPACE, 450)) {
                     this.runner.body.velocity.y = this.jumpSpeed;
                 } 
