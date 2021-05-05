@@ -14,12 +14,12 @@ let config = {
             }
         }
     },
-    scene: [Menu, Play]
+    scene: [Menu, Play, GameOver]
 }
 
 let game = new Phaser.Game(config);
 
-//let borderUISize = game.config.height / 15;
-//let borderPadding = borderUISize / 3;
+let borderUISize = game.config.height / 15;
+let borderPadding = borderUISize / 3;
 
 let keySPACE, keyUP, keyDOWN, keyR;
