@@ -4,7 +4,7 @@ class Play extends Phaser.Scene {
     }
 
     preload() {
-        this.load.bitmapFont('font', './assets/font.png', './assets/font.xml');
+        //this.load.bitmapFont('font', './assets/font.png', './assets/font.xml');
 
         this.load.atlas('runner', './assets/obstacleseComposite.png', './assets/obstacleseComposite.json');
         
@@ -18,6 +18,7 @@ class Play extends Phaser.Scene {
         this.load.image('shoreReflection', './assets/ShoreReflection.png');
         this.load.image('pillarReflection', './assets/PillarReflection.png');
         this.load.image('river', './assets/River.png');
+        this.load.spritesheet('hades', './assets/hades.png', {frameWidth: 440, frameHeight: 416});
         
     }
 
@@ -31,6 +32,11 @@ class Play extends Phaser.Scene {
         this.jumpSpeed = -650;
         this.scrollSpeed = 8;
         this.scrollSpeedCap = this.scrollSpeed * 3;
+        this.scrollDeathSpeed = this.scrollSpeedCap / 2.5; //Anthony//
+        this.canDie = false; //Anthony//
+        this.initInvuln = 10000; // Anthony//
+        this.time.delayedCall(this.initInvuln, () => { this.canDie = true;}); //Anthony//
+        
 
         /* River variable settings:
          * 0 = Acheron
@@ -69,7 +75,7 @@ class Play extends Phaser.Scene {
         */
 
         // Setting up runner
-        this.runner = this.physics.add.sprite(200, game.config.height - tileSize * 4, 'runner').setOrigin(0.5);
+        this.runner = this.physics.add.sprite(300, game.config.height - tileSize * 4, 'runner').setOrigin(0.5);
         this.anims.create({
             key: 'run',
             frames:this.anims.generateFrameNames('runner', { prefix: 'run', end: 7, zeroPad: 0}),
@@ -80,6 +86,17 @@ class Play extends Phaser.Scene {
             key: 'jump',
             frames:this.anims.generateFrameNames('runner', { prefix: 'jump'})
         });
+        // Setting up Hades
+        this.hades = this.physics.add.sprite(50, game.config.height - tileSize * 10, 'hades').setOrigin(0.5);
+        this.hades.scale = 0.6;
+        this.anims.create({
+            key: 'hades',
+            frames:this.anims.generateFrameNames('hades', { prefix: 'hades', end: 3, zeroPad: 0}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+
 
         // Setting up background elements
         this.background = this.add.tileSprite(0,0,game.width, game.height,'background').setOrigin(0,0).setDepth(-7);
@@ -105,6 +122,8 @@ class Play extends Phaser.Scene {
 
         // Runner collides with ground
         this.physics.add.collider(this.runner, this.ground);
+        // Hades collides with ground
+        this.physics.add.collider(this.hades, this.ground);
 
         // Hurdle group
         this.hurdleGroup = this.add.group({
@@ -233,20 +252,21 @@ class Play extends Phaser.Scene {
     update(time, delta) {
         // short-hop vs long-jump is main decision
         // Speed determines if long-jumps are passable
-        if(this.gameOver){ // Dead :(
+        this.timer -= delta;
+        if(this.gameOver & this.canDie){ // Dead :(
             // oh shit he dead
             this.time.delayedCall(2000, () => { this.scene.start('gameOverScene'); });
         }
         else{ // Not dead yet, poggers
-            // Originally a source that allowed the incrementation of a timer to cause a game-over.
-            // Since the lose-con is being reworked, i commented this out.
-            // if(this.scrollSpeed < this.scrollSpeedCap / 2){
-            //     this.timer += delta * 2;
-            //     console.log(this.timer);
-            //     if(this.timer > 10){
-            //         this.hadesVibeCheck(); // You're too slow!
-            //     }
-            // }
+            if(this.scrollSpeed < this.scrollDeathSpeed & this.canDie){
+                console.log ('gameOverScene')
+                this.gameOver = true;
+                // this.timer += delta * 2;
+                // if(this.timer > 10){
+                //     this.hadesVibeCheck(); // You're too slow!
+                // }
+            }
+            
 
             this.floor.tilePositionX += this.scrollSpeed / 2;
             this.groundScroll.tilePositionX += this.scrollSpeed;
